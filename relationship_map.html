@@ -225,6 +225,7 @@ let nodes = [
   { id:'brice',      label:'Brice Bank',             type:'person',  notes:'The connector. Family Trusts, investment. Carbon Credit bank, tokenization of credit, and commodities' },
   { id:'todd',      label:'Todd South',             type:'person',  notes:'Starboard. Defense company' },
   { id:'ea',       label:'Elemental Air',               type:'org',     notes:'Carbon Capture. Needed for POD' },
+  { id:'gc',       label:'GC60',               type:'org',     notes:'JV Agreement, possible carbon offtakers' },
 ];
 let edges = [
   { source:'henry', target:'cofr' },
@@ -238,6 +239,7 @@ let edges = [
   { source:'ea', target:'voyageur' },
   { source:'brice', target:'ea' },
   { source:'cofr', target:'ea' },
+  { source:'gc', target:'ea' },
 ];
 
 const svg = d3.select('#canvas');
