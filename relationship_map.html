@@ -217,7 +217,7 @@ let nodes = [
   { id:'cofr',       label:'COFR Group',               type:'org',     notes:'Group formed about VOFR tech, very political. Committee inside the White House. This is the real bridge — Henry Jones and GCA both connect here, not straight to "the White House."' },
   { id:'henry',      label:'Henry Jones',             type:'person',  notes:'The connector. Advises the COFR Group AND psooibly GCA? — CIA Operative/handler. This is exactly the kind of person you want the board to surface.' },
   { id:'michael',      label:'Michael Smith',             type:'person',  notes:'AWT, inventor. All water cleaning and filtering. De-sal, tailings ponds, cleans mining warter' },
-  { id:'voyageur', label:'Voyageur',         type:'project', notes:'Oklahoma/Utah Mining Projects opportunity' },
+  { id:'voyageur', label:'Voyageur',         type:'org', notes:'Oklahoma/Utah Mining Projects opportunity, also want endofullerene' },
   { id:'uspolicy',     label:'Influence U.S. Energy Policy', type:'goal',    notes:'Not a project, not a person — a big-picture outcome that the refinery deal happens to serve.' },
   { id:'powerleader',     label:'Become Global Power Leader', type:'goal',    notes:'The ones who create cheap power, powering grids, data centers, etc.' },
   { id:'kim',      label:'Kim Van Vliet',             type:'person',  notes:'The connector. High Delegate of NATO/defense' },
@@ -237,6 +237,7 @@ let nodes = [
   { id:'gerard',       label:'Gerard',               type:'person',     notes:'Potential player in ResearchCo' },
   { id:'carbonmarket',       label:'Carbon Credit Market',               type:'project',     notes:'Creating a market to sell our C.C' },
   { id:'mike',       label:'Mike Gelians',               type:'person',     notes:'Connector, Investor. Executive Liaison for COFR' },
+  { id:'ok',       label:'Oklahoma Utah',               type:'project',     notes:'Mining project' },
   
 ];
 let edges = [
@@ -274,6 +275,7 @@ let edges = [
   { source:'carbonmarket', target:'brice' },
   { source:'carbonmarket', target:'ea' },
   { source:'mike', target:'cofr' },
+  { source:'ok', target:'voyageur' },
   
 ];
 
