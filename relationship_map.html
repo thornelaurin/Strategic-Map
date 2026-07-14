@@ -230,6 +230,7 @@ let nodes = [
   { id:'pathways',       label:'Pathways Project',               type:'project',     notes:'AB emissions reduction' },
   { id:'cnrl',       label:'CNRL',               type:'project',     notes:'Potential partner needed emissions reduced, AB' },
   { id:'researchco',       label:'ResearchCo',               type:'org',     notes:'R&D, specifically for POD' },
+  { id:'paul',       label:'Paul Franch',               type:'person',     notes:'The connector. Running through PanAm. In with GCA, COFR, government connected' },
 ];
 let edges = [
   { source:'henry', target:'cofr' },
@@ -251,6 +252,8 @@ let edges = [
   { source:'cnrl', target:'ea' },
   { source:'pathways', target:'cnrl' },
   { source:'researchco', target:'pod' },
+  { source:'paul', target:'ea' },
+  { source:'paul', target:'cofr' },
   
 ];
 
