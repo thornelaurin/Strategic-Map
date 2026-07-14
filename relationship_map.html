@@ -219,10 +219,14 @@ let nodes = [
   { id:'henry',      label:'Henry Jones',             type:'person',  notes:'The connector. Advises the COFR Group AND psooibly GCA? — CIA Operative/handler. This is exactly the kind of person you want the board to surface.' },
   { id:'refinery', label:'ABC Refinery — Texas',         type:'project', notes:'A concrete opportunity: the "small star." Courting this client is a project, not a goal.' },
   { id:'goal',     label:'Influence U.S. Energy Policy', type:'goal',    notes:'The BHAG. Not a project, not a person — a big-picture outcome that the refinery deal happens to serve.' },
+  { id:'kim',      label:'Kim Van Vliet',             type:'person',  notes:'The connector. High Delegate of NATO/defense' },
+  { id:'brice',      label:'Brice Bank',             type:'person',  notes:'The connector. Family Trusts, investment. Carbon Credit bank, tokenization of credit, and commodities' },
 ];
 let edges = [
   { source:'henry', target:'cofr' },
   { source:'henry', target:'gca' },
+  { source:'henry', target:'kim' },
+  { source:'kim', target:'henry' },
 ];
 
 const svg = d3.select('#canvas');
