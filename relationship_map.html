@@ -221,8 +221,8 @@ let nodes = [
   { id:'goal',     label:'Influence U.S. Energy Policy', type:'goal',    notes:'The BHAG. Not a project, not a person — a big-picture outcome that the refinery deal happens to serve.' },
 ];
 let edges = [
-  { source:'cofr', target:'henry' },
-  { source:'gca', target:'henry' },
+  { source:'henry', target:'cofr' },
+  { source:'henry', target:'gca' },
 ];
 
 const svg = d3.select('#canvas');
