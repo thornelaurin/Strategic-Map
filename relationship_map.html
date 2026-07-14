@@ -227,6 +227,8 @@ let nodes = [
   { id:'ea',       label:'Elemental Air',               type:'org',     notes:'Carbon Capture. Needed for POD' },
   { id:'gc',       label:'GC60',               type:'org',     notes:'JV Agreement, possible carbon offtakers' },
   { id:'pod',       label:'Power on Demand',               type:'org',     notes:'Power Entity. Needs EA to funnel carbon through' },
+  { id:'pathways',       label:'Pathways Project',               type:'project',     notes:'AB emissions reduction' },
+  { id:'cnrl',       label:'CNRL',               type:'project',     notes:'Potential partner needed emissions reduced, AB' },
 ];
 let edges = [
   { source:'henry', target:'cofr' },
@@ -244,6 +246,10 @@ let edges = [
   { source:'pod', target:'ea' },
   { source:'pod', target:'kim' },
   { source:'pod', target:'todd' },
+  { source:'pod', target:'todd' },
+  { source:'cnrl', target:'ea' },
+  { source:'pathways', target:'cnrl' },
+  
 ];
 
 const svg = d3.select('#canvas');
