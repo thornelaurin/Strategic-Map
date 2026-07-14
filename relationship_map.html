@@ -219,7 +219,7 @@ let nodes = [
   { id:'henry',      label:'Henry Jones',             type:'person',  notes:'The connector. Advises the COFR Group AND psooibly GCA? — CIA Operative/handler. This is exactly the kind of person you want the board to surface.' },
   { id:'michael',      label:'Michael Smith',             type:'person',  notes:'AWT, inventor. All water cleaning and filtering. De-sal, tailings ponds, cleans mining warter' },
   { id:'voyageur', label:'Voyageur',         type:'project', notes:'Oklahoma/Utah Mining Projects opportunity' },
-  { id:'uspolicy',     label:'Influence U.S. Energy Policy', type:'goal',    notes:'The BHAG. Not a project, not a person — a big-picture outcome that the refinery deal happens to serve.' },
+  { id:'uspolicy',     label:'Influence U.S. Energy Policy', type:'goal',    notes:'Not a project, not a person — a big-picture outcome that the refinery deal happens to serve.' },
   { id:'powerleader',     label:'Become Global Power Leader', type:'goal',    notes:'The ones who create cheap power, powering grids, data centers, etc.' },
   { id:'kim',      label:'Kim Van Vliet',             type:'person',  notes:'The connector. High Delegate of NATO/defense' },
   { id:'brice',      label:'Brice Bank',             type:'person',  notes:'The connector. Family Trusts, investment. Carbon Credit bank, tokenization of credit, and commodities' },
@@ -231,6 +231,7 @@ let nodes = [
   { id:'cnrl',       label:'CNRL',               type:'project',     notes:'Potential partner needed emissions reduced, AB' },
   { id:'researchco',       label:'ResearchCo',               type:'org',     notes:'R&D, specifically for POD' },
   { id:'paul',       label:'Paul Franch',               type:'person',     notes:'The connector. Running through PanAm. In with GCA, COFR, government connected' },
+  { id:'optics',       label:'Optics',               type:'org',     notes:'Investor for POD' },
 ];
 let edges = [
   { source:'henry', target:'cofr' },
@@ -254,6 +255,8 @@ let edges = [
   { source:'researchco', target:'pod' },
   { source:'paul', target:'ea' },
   { source:'paul', target:'cofr' },
+  { source:'optics', target:'pod' },
+  { source:'uspolicy', target:'gca' },
   
 ];
 
