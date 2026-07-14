@@ -213,19 +213,16 @@ function getCss(v){ return getComputedStyle(document.documentElement).getPropert
 
 // ---- Seed data: the exact scenario from the transcript ----
 let nodes = [
-  { id:'wh',       label:'White House',                 type:'org',     notes:'The top-level institution in this thread — reached only through its committee, not directly through the lobbyist.' },
-  { id:'ec',       label:'Energy Council',               type:'org',     notes:'Committee inside the White House. This is the real bridge — Bob and the lobby firm both connect here, not straight to "the White House."' },
+  { id:'gca',       label:'GCA',                 type:'org',     notes:'The top-level institution in this thread — reached only through its committee/intermediaries' },
+  { id:'cofr',       label:'COFR Group',               type:'org',     notes:'Group formed about VOFR tech, very political. Committee inside the White House. This is the real bridge — Henry Jones and GCA both connect here, not straight to "the White House."' },
   { id:'lobby',    label:'Lobby Firm A',                 type:'org',     notes:'Works the White House through the Energy Council. No direct line to the refinery.' },
-  { id:'bob',      label:'Bob (Consultant)',             type:'person',  notes:'The connector. Advises the Energy Council AND the Texas refinery — this is exactly the kind of person you want the board to surface.' },
+  { id:'henry',      label:'Henry Jones',             type:'person',  notes:'The connector. Advises the COFR Group AND psooibly GCA? — this is exactly the kind of person you want the board to surface.' },
   { id:'refinery', label:'ABC Refinery — Texas',         type:'project', notes:'A concrete opportunity: the "small star." Courting this client is a project, not a goal.' },
   { id:'goal',     label:'Influence U.S. Energy Policy', type:'goal',    notes:'The BHAG. Not a project, not a person — a big-picture outcome that the refinery deal happens to serve.' },
 ];
 let edges = [
-  { source:'wh', target:'ec' },
-  { source:'ec', target:'lobby' },
-  { source:'ec', target:'bob' },
-  { source:'bob', target:'refinery' },
-  { source:'refinery', target:'goal' },
+  { source:'gca', target:'cofr' },
+  { source:'cofr', target:'henry' },
 ];
 
 const svg = d3.select('#canvas');
