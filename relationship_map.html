@@ -217,17 +217,27 @@ let nodes = [
   { id:'cofr',       label:'COFR Group',               type:'org',     notes:'Group formed about VOFR tech, very political. Committee inside the White House. This is the real bridge — Henry Jones and GCA both connect here, not straight to "the White House."' },
   { id:'lobby',    label:'Lobby Firm A',                 type:'org',     notes:'Works the White House through the Energy Council. No direct line to the refinery.' },
   { id:'henry',      label:'Henry Jones',             type:'person',  notes:'The connector. Advises the COFR Group AND psooibly GCA? — CIA Operative/handler. This is exactly the kind of person you want the board to surface.' },
-  { id:'refinery', label:'ABC Refinery — Texas',         type:'project', notes:'A concrete opportunity: the "small star." Courting this client is a project, not a goal.' },
+  { id:'michael',      label:'Michael Smith',             type:'person',  notes:'AWT, inventor. All water cleaning and filtering. De-sal, tailings ponds, cleans mining warter' },
+  { id:'voyageur', label:'Voyageur',         type:'project', notes:'Oklahoma/Utah Mining Projects opportunity' },
   { id:'uspolicy',     label:'Influence U.S. Energy Policy', type:'goal',    notes:'The BHAG. Not a project, not a person — a big-picture outcome that the refinery deal happens to serve.' },
   { id:'powerleader',     label:'Become Global Power Leader', type:'goal',    notes:'The ones who create cheap power, powering grids, data centers, etc.' },
   { id:'kim',      label:'Kim Van Vliet',             type:'person',  notes:'The connector. High Delegate of NATO/defense' },
   { id:'brice',      label:'Brice Bank',             type:'person',  notes:'The connector. Family Trusts, investment. Carbon Credit bank, tokenization of credit, and commodities' },
+  { id:'todd',      label:'Todd South',             type:'person',  notes:'Starboard. Defense company' },
+  { id:'ea',       label:'Elemental Air',               type:'org',     notes:'Carbon Capture. Needed for POD' },
 ];
 let edges = [
   { source:'henry', target:'cofr' },
   { source:'henry', target:'gca' },
   { source:'henry', target:'kim' },
   { source:'kim', target:'brice' },
+  { source:'kim', target:'michael' },
+  { source:'Michael', target:'voyageur' },
+  { source:'Michael', target:'todd' },
+  { source:'ea', target:'kim' },
+  { source:'ea', target:'voyageur' },
+  { source:'ea', target:'brice' },
+  { source:'ea', target:'cofr' },
 ];
 
 const svg = d3.select('#canvas');
