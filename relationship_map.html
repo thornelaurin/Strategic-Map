@@ -215,7 +215,6 @@ function getCss(v){ return getComputedStyle(document.documentElement).getPropert
 let nodes = [
   { id:'gca',       label:'GCA',                 type:'org',     notes:'The top-level institution in this thread — reached only through its committee/intermediaries' },
   { id:'cofr',       label:'COFR Group',               type:'org',     notes:'Group formed about VOFR tech, very political. Committee inside the White House. This is the real bridge — Henry Jones and GCA both connect here, not straight to "the White House."' },
-  { id:'lobby',    label:'Lobby Firm A',                 type:'org',     notes:'Works the White House through the Energy Council. No direct line to the refinery.' },
   { id:'henry',      label:'Henry Jones',             type:'person',  notes:'The connector. Advises the COFR Group AND psooibly GCA? — CIA Operative/handler. This is exactly the kind of person you want the board to surface.' },
   { id:'michael',      label:'Michael Smith',             type:'person',  notes:'AWT, inventor. All water cleaning and filtering. De-sal, tailings ponds, cleans mining warter' },
   { id:'voyageur', label:'Voyageur',         type:'project', notes:'Oklahoma/Utah Mining Projects opportunity' },
@@ -233,7 +232,9 @@ let nodes = [
   { id:'paul',       label:'Paul Franch',               type:'person',     notes:'The connector. Running through PanAm. In with GCA, COFR, government connected' },
   { id:'optics',       label:'Optics',               type:'org',     notes:'Investor for POD' },
   { id:'firstlight',       label:'First Light',               type:'org',     notes:'Investor for EA, maybe Michael Smith' },
-  { id:'defensefund',       label:'Defense Fund',               type:'project',     notes:'Project to fund new defense tech },
+  { id:'defensefund',       label:'Defense Fund',               type:'project',     notes:'Project to fund new defense tech' },
+  { id:'danilo',       label:'Danilo Nunes',               type:'person',     notes:'Critical to POD for Mg supply.' },
+  { id:'gerard',       label:'Gerard',               type:'person',     notes:'Potential player in ResearchCo' },
   
 ];
 let edges = [
@@ -265,6 +266,9 @@ let edges = [
   { source:'firstlight', target:'ea' },
   { source:'defensefund', target:'kim' },
   { source:'defensefund', target:'gca' },
+  { source:'danilo', target:'pod' },
+  { source:'danilo', target:'researchco' },
+  { source:'gerard', target:'researchco' },
   
 ];
 
