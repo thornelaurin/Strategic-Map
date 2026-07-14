@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Relationship Map</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+  :root{
+    --bg: #16140f;
+    --board: #1e1b14;
+    --board-line: rgba(237,231,219,0.05);
+    --parchment: #ede7db;
+    --muted: #9c9488;
+    --gold: #d4a24c;       /* goals */
+    --gold-dim: #6e5a34;
+    --rust: #c1502e;       /* projects/opportunities */
+    --rust-dim: #6a3624;
+    --steel: #6b8ca3;      /* organizations */
+    --steel-dim: #3d4f5a;
+    --olive: #8a9a5b;      /* people */
+    --olive-dim: #4a5232;
+    --string: #b0402e;
+    --string-bright: #ff8a5c;
+    --panel-bg: #221f18;
+    --panel-border: #3a352a;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:var(--bg);
+    font-family: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    color:var(--parchment);
+    overflow:hidden;
+  }
+  #board{
+    position:absolute; inset:0;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(255,255,255,0.02), transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(255,255,255,0.015), transparent 45%),
+      repeating-linear-gradient(0deg, var(--board-line) 0px, transparent 1px, transparent 42px),
+      repeating-linear-gradient(90deg, var(--board-line) 0px, transparent 1px, transparent 42px),
+      var(--board);
+  }
+  #topbar{
+    position:absolute; top:0; left:0; right:0;
+    display:flex; align-items:baseline; justify-content:space-between;
+    padding:20px 26px 14px;
+    z-index:5;
+    pointer-events:none;
+  }
+  #topbar > *{pointer-events:auto;}
+  h1{
+    font-size:20px; font-weight:400; letter-spacing:0.04em;
+    margin:0; color:var(--parchment);
+    text-transform:uppercase;
+  }
+  h1 span{color:var(--muted); font-size:12px; letter-spacing:0.08em; display:block; margin-top:4px; text-transform:none; font-family:'Courier New', monospace;}
+  #controls{display:flex; gap:10px; align-items:center;}
+  button{
+    font-family: 'Courier New', monospace;
+    font-size:11px; letter-spacing:0.06em; text-transform:uppercase;
+    background:transparent; color:var(--parchment);
+    border:1px solid var(--panel-border); border-radius:2px;
+    padding:8px 14px; cursor:pointer;
+    transition:all .15s ease;
+  }
+  button:hover{ border-color:var(--gold); color:var(--gold); }
+  button.primary{ border-color:var(--rust); color:var(--rust); }
+  button.primary:hover{ background:var(--rust); color:var(--bg); }
+
+  #legend{
+    position:absolute; bottom:20px; left:26px; z-index:5;
+    font-family:'Courier New', monospace; font-size:11px; color:var(--muted);
+    display:flex; flex-direction:column; gap:6px;
+    background:rgba(20,18,13,0.6); padding:12px 16px; border:1px solid var(--panel-border); border-radius:2px;
+  }
+  .legend-row{display:flex; align-items:center; gap:8px;}
+  .legend-dot{width:11px; height:11px; border-radius:50%; flex-shrink:0;}
+
+  svg{position:absolute; inset:0; width:100%; height:100%;}
+  .edge{ stroke:var(--string); stroke-width:1.4; fill:none; opacity:0.55; transition:opacity .2s, stroke .2s, stroke-width .2s;}
+  .edge.dim{ opacity:0.08; }
+  .edge.hot{ stroke:var(--string-bright); stroke-width:2.2; opacity:0.95; }
+
+  .node-group{ cursor:pointer; }
+  .pin{ fill:#3a352a; }
+  .node-circle{ stroke:rgba(0,0,0,0.4); stroke-width:1.5; transition:opacity .2s, filter .2s; }
+  .node-group.dim .node-circle{ opacity:0.18; }
+  .node-group.dim text{ opacity:0.18; }
+  .node-group.hot .node-circle{ filter:drop-shadow(0 0 6px currentColor); }
+  .node-label{
+    fill:var(--parchment); font-family:'Courier New', monospace;
+    font-size:11px; text-anchor:middle; pointer-events:none;
+    text-transform:uppercase; letter-spacing:0.03em;
+  }
+  .node-sublabel{
+    fill:var(--muted); font-family:'Courier New', monospace;
+    font-size:9px; text-anchor:middle; pointer-events:none;
+  }
+
+  /* side panel */
+  #panel{
+    position:absolute; top:0; right:0; bottom:0; width:340px;
+    background:var(--panel-bg); border-left:1px solid var(--panel-border);
+    transform:translateX(100%); transition:transform .25s ease;
+    z-index:10; padding:24px 22px; overflow-y:auto;
+  }
+  #panel.open{ transform:translateX(0); }
+  #panel .close{ position:absolute; top:16px; right:16px; background:none; border:none; color:var(--muted); font-size:18px; cursor:pointer; padding:4px;}
+  #panel .close:hover{ color:var(--parchment); border:none;}
+  .badge{
+    display:inline-block; font-family:'Courier New', monospace; font-size:10px;
+    letter-spacing:0.08em; text-transform:uppercase; padding:3px 8px; border-radius:2px;
+    margin-bottom:10px;
+  }
+  #panel h2{ font-size:19px; margin:0 0 4px; font-weight:400; color:var(--parchment); line-height:1.3;}
+  #panel .notes{ font-size:13px; color:var(--muted); line-height:1.6; margin:14px 0 20px; font-family:Georgia, serif;}
+  #panel .section-title{
+    font-family:'Courier New', monospace; font-size:10px; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--muted); margin:18px 0 10px;
+    border-bottom:1px solid var(--panel-border); padding-bottom:6px;
+  }
+  .conn-item{
+    display:flex; align-items:center; gap:8px; padding:7px 0; cursor:pointer;
+    font-size:13px; color:var(--parchment); border-bottom:1px solid rgba(255,255,255,0.03);
+  }
+  .conn-item:hover{ color:var(--gold); }
+  .conn-dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+  .reach-note{ font-size:12px; color:var(--muted); font-style:italic; margin-top:10px; line-height:1.5;}
+
+  /* add form modal */
+  #modal-overlay{
+    position:absolute; inset:0; background:rgba(0,0,0,0.6); z-index:20;
+    display:none; align-items:center; justify-content:center;
+  }
+  #modal-overlay.open{ display:flex; }
+  #modal{
+    background:var(--panel-bg); border:1px solid var(--panel-border); border-radius:3px;
+    width:400px; max-width:90vw; padding:26px; max-height:85vh; overflow-y:auto;
+  }
+  #modal h3{ margin:0 0 18px; font-weight:400; font-size:16px; letter-spacing:0.03em;}
+  #modal label{
+    display:block; font-family:'Courier New', monospace; font-size:10px; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--muted); margin:14px 0 6px;
+  }
+  #modal input[type=text], #modal select, #modal textarea{
+    width:100%; background:var(--bg); border:1px solid var(--panel-border); color:var(--parchment);
+    padding:9px 10px; font-family:Georgia, serif; font-size:13px; border-radius:2px;
+  }
+  #modal textarea{ resize:vertical; min-height:50px;}
+  .type-picker{ display:flex; gap:8px; }
+  .type-opt{
+    flex:1; padding:8px 4px; text-align:center; border:1px solid var(--panel-border); border-radius:2px;
+    cursor:pointer; font-family:'Courier New', monospace; font-size:10px; text-transform:uppercase;
+  }
+  .type-opt.selected{ border-color:currentColor; background:rgba(255,255,255,0.05);}
+  #connect-list{ max-height:140px; overflow-y:auto; border:1px solid var(--panel-border); border-radius:2px; padding:6px 10px;}
+  .connect-check{ display:flex; align-items:center; gap:8px; padding:5px 0; font-size:12px;}
+  #modal-actions{ display:flex; gap:10px; margin-top:22px; justify-content:flex-end;}
+</style>
+</head>
+<body>
+
+<div id="board"></div>
+<svg id="canvas"></svg>
+
+<div id="topbar">
+  <h1>The Board <span>click a node to trace its cobweb</span></h1>
+  <div id="controls">
+    <button id="reset-btn">Reset View</button>
+    <button id="add-btn" class="primary">+ Add to Board</button>
+  </div>
+</div>
+
+<div id="legend">
+  <div class="legend-row"><div class="legend-dot" style="background:var(--gold)"></div> Goal — the big-picture objective</div>
+  <div class="legend-row"><div class="legend-dot" style="background:var(--rust)"></div> Project / Opportunity</div>
+  <div class="legend-row"><div class="legend-dot" style="background:var(--steel)"></div> Organization</div>
+  <div class="legend-row"><div class="legend-dot" style="background:var(--olive)"></div> Person</div>
+</div>
+
+<div id="panel">
+  <button class="close" id="panel-close">&times;</button>
+  <div id="panel-body"></div>
+</div>
+
+<div id="modal-overlay">
+  <div id="modal">
+    <h3>Pin something new to the board</h3>
+    <label>Name</label>
+    <input type="text" id="new-label" placeholder="e.g. Sarah Whitfield">
+    <label>Type</label>
+    <div class="type-picker" id="type-picker"></div>
+    <label>Notes</label>
+    <textarea id="new-notes" placeholder="Why they matter, how you know them, what they touch..."></textarea>
+    <label>Connect to existing pins</label>
+    <div id="connect-list"></div>
+    <div id="modal-actions">
+      <button id="modal-cancel">Cancel</button>
+      <button id="modal-save" class="primary">Pin It</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TYPE_META = {
+  goal:    { color:getCss('--gold'),  dim:getCss('--gold-dim'),  r:34, label:'GOAL' },
+  project: { color:getCss('--rust'),  dim:getCss('--rust-dim'),  r:26, label:'PROJECT' },
+  org:     { color:getCss('--steel'), dim:getCss('--steel-dim'), r:21, label:'ORG' },
+  person:  { color:getCss('--olive'), dim:getCss('--olive-dim'), r:19, label:'PERSON' },
+};
+function getCss(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+// ---- Seed data: the exact scenario from the transcript ----
+let nodes = [
+  { id:'wh',       label:'White House',                 type:'org',     notes:'The top-level institution in this thread — reached only through its committee, not directly through the lobbyist.' },
+  { id:'ec',       label:'Energy Council',               type:'org',     notes:'Committee inside the White House. This is the real bridge — Bob and the lobby firm both connect here, not straight to "the White House."' },
+  { id:'lobby',    label:'Lobby Firm A',                 type:'org',     notes:'Works the White House through the Energy Council. No direct line to the refinery.' },
+  { id:'bob',      label:'Bob (Consultant)',             type:'person',  notes:'The connector. Advises the Energy Council AND the Texas refinery — this is exactly the kind of person you want the board to surface.' },
+  { id:'refinery', label:'ABC Refinery — Texas',         type:'project', notes:'A concrete opportunity: the "small star." Courting this client is a project, not a goal.' },
+  { id:'goal',     label:'Influence U.S. Energy Policy', type:'goal',    notes:'The BHAG. Not a project, not a person — a big-picture outcome that the refinery deal happens to serve.' },
+];
+let edges = [
+  { source:'wh', target:'ec' },
+  { source:'ec', target:'lobby' },
+  { source:'ec', target:'bob' },
+  { source:'bob', target:'refinery' },
+  { source:'refinery', target:'goal' },
+];
+
+const svg = d3.select('#canvas');
+let width = window.innerWidth, height = window.innerHeight;
+const g = svg.append('g');
+
+svg.call(d3.zoom().scaleExtent([0.4, 2.5]).on('zoom', (ev) => g.attr('transform', ev.transform)));
+
+let linkSel, nodeSel;
+let simulation;
+let selectedId = null;
+
+function idOf(x){ return typeof x === 'object' ? x.id : x; }
+
+function neighborsOf(id){
+  const set = new Set();
+  edges.forEach(e => {
+    if (idOf(e.source) === id) set.add(idOf(e.target));
+    if (idOf(e.target) === id) set.add(idOf(e.source));
+  });
+  return set;
+}
+
+// full connected component reachable from id (the "cobweb")
+function reachableFrom(id){
+  const visited = new Set([id]);
+  const queue = [id];
+  while (queue.length){
+    const cur = queue.pop();
+    edges.forEach(e => {
+      const s = idOf(e.source), t = idOf(e.target);
+      if (s === cur && !visited.has(t)){ visited.add(t); queue.push(t); }
+      if (t === cur && !visited.has(s)){ visited.add(s); queue.push(s); }
+    });
+  }
+  return visited;
+}
+
+function render(){
+  width = window.innerWidth; height = window.innerHeight;
+  svg.attr('viewBox', [0,0,width,height]);
+
+  g.selectAll('*').remove();
+
+  simulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(edges).id(d => d.id).distance(150).strength(0.5))
+    .force('charge', d3.forceManyBody().strength(-520))
+    .force('center', d3.forceCenter(width/2, height/2))
+    .force('collide', d3.forceCollide().radius(d => TYPE_META[d.type].r + 26));
+
+  linkSel = g.append('g').selectAll('line')
+    .data(edges).join('line')
+    .attr('class', 'edge');
+
+  nodeSel = g.append('g').selectAll('g.node-group')
+    .data(nodes, d => d.id).join('g')
+    .attr('class', 'node-group')
+    .call(drag(simulation))
+    .on('click', (ev, d) => { ev.stopPropagation(); selectNode(d.id); });
+
+  nodeSel.append('circle')
+    .attr('class', 'pin')
+    .attr('r', 2.5)
+    .attr('cy', d => -TYPE_META[d.type].r - 3);
+
+  nodeSel.append('circle')
+    .attr('class', 'node-circle')
+    .attr('r', d => TYPE_META[d.type].r)
+    .attr('fill', d => TYPE_META[d.type].color)
+    .attr('style', d => `color:${TYPE_META[d.type].color}`);
+
+  nodeSel.append('text')
+    .attr('class', 'node-sublabel')
+    .attr('y', d => -TYPE_META[d.type].r - 10)
+    .text(d => TYPE_META[d.type].label);
+
+  nodeSel.append('text')
+    .attr('class', 'node-label')
+    .each(function(d){
+      const words = d.label.split(' ');
+      const el = d3.select(this);
+      if (words.join(' ').length > 16 && words.length > 1){
+        const mid = Math.ceil(words.length/2);
+        el.append('tspan').attr('x',0).attr('dy','0.35em').text(words.slice(0,mid).join(' '));
+        el.append('tspan').attr('x',0).attr('dy','1.15em').text(words.slice(mid).join(' '));
+      } else {
+        el.attr('dy','0.35em').text(d.label);
+      }
+    });
+
+  simulation.on('tick', () => {
+    linkSel
+      .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+    nodeSel.attr('transform', d => `translate(${d.x},${d.y})`);
+  });
+
+  svg.on('click', () => selectNode(null));
+  applyHighlight();
+}
+
+function drag(sim){
+  function started(ev,d){ if(!ev.active) sim.alphaTarget(0.25).restart(); d.fx=d.x; d.fy=d.y; }
+  function dragged(ev,d){ d.fx=ev.x; d.fy=ev.y; }
+  function ended(ev,d){ if(!ev.active) sim.alphaTarget(0); d.fx=null; d.fy=null; }
+  return d3.drag().on('start',started).on('drag',dragged).on('end',ended);
+}
+
+function selectNode(id){
+  selectedId = id;
+  applyHighlight();
+  if (id) openPanel(id); else closePanel();
+}
+
+function applyHighlight(){
+  if (!selectedId){
+    nodeSel.classed('dim', false).classed('hot', false);
+    linkSel.classed('dim', false).classed('hot', false);
+    return;
+  }
+  const web = reachableFrom(selectedId);
+  const direct = neighborsOf(selectedId);
+  nodeSel
+    .classed('dim', d => !web.has(d.id))
+    .classed('hot', d => d.id === selectedId || direct.has(d.id));
+  linkSel
+    .classed('dim', e => !(web.has(idOf(e.source)) && web.has(idOf(e.target))))
+    .classed('hot', e => idOf(e.source) === selectedId || idOf(e.target) === selectedId);
+}
+
+function openPanel(id){
+  const node = nodes.find(n => n.id === id);
+  const meta = TYPE_META[node.type];
+  const direct = [...neighborsOf(id)].map(nid => nodes.find(n=>n.id===nid));
+  const web = reachableFrom(id);
+
+  const body = document.getElementById('panel-body');
+  body.innerHTML = `
+    <div class="badge" style="background:${meta.dim}; color:${meta.color};">${meta.label}</div>
+    <h2>${node.label}</h2>
+    <div class="notes">${node.notes || '<em>No notes yet — click "+ Add to Board" to build this out.</em>'}</div>
+    <div class="section-title">Directly connected (${direct.length})</div>
+    ${direct.map(n => `
+      <div class="conn-item" data-id="${n.id}">
+        <div class="conn-dot" style="background:${TYPE_META[n.type].color}"></div>
+        ${n.label}
+      </div>`).join('') || '<div class="reach-note">Nothing pinned to this yet.</div>'}
+    <div class="reach-note">This node's full cobweb reaches ${web.size - 1} other pin${web.size-1===1?'':'s'} on the board.</div>
+  `;
+  body.querySelectorAll('.conn-item').forEach(el => {
+    el.addEventListener('click', () => selectNode(el.dataset.id));
+  });
+  document.getElementById('panel').classList.add('open');
+}
+function closePanel(){ document.getElementById('panel').classList.remove('open'); }
+document.getElementById('panel-close').addEventListener('click', () => selectNode(null));
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  selectNode(null);
+  nodes.forEach(n => { n.fx=null; n.fy=null; });
+  render();
+});
+
+// ---- Add-to-board modal ----
+const overlay = document.getElementById('modal-overlay');
+const typePicker = document.getElementById('type-picker');
+let chosenType = 'person';
+
+function buildTypePicker(){
+  typePicker.innerHTML = '';
+  Object.keys(TYPE_META).forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'type-opt' + (t===chosenType ? ' selected':'');
+    div.style.color = TYPE_META[t].color;
+    div.textContent = TYPE_META[t].label;
+    div.addEventListener('click', () => { chosenType = t; buildTypePicker(); });
+    typePicker.appendChild(div);
+  });
+}
+
+function buildConnectList(){
+  const list = document.getElementById('connect-list');
+  list.innerHTML = nodes.map(n => `
+    <div class="connect-check">
+      <input type="checkbox" id="chk-${n.id}" value="${n.id}">
+      <label for="chk-${n.id}" style="margin:0; text-transform:none; font-family:Georgia,serif; font-size:12px; color:var(--parchment);">${n.label}</label>
+    </div>
+  `).join('');
+}
+
+document.getElementById('add-btn').addEventListener('click', () => {
+  chosenType = 'person';
+  document.getElementById('new-label').value = '';
+  document.getElementById('new-notes').value = '';
+  buildTypePicker();
+  buildConnectList();
+  overlay.classList.add('open');
+});
+document.getElementById('modal-cancel').addEventListener('click', () => overlay.classList.remove('open'));
+overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.classList.remove('open'); });
+
+document.getElementById('modal-save').addEventListener('click', () => {
+  const label = document.getElementById('new-label').value.trim();
+  if (!label){ return; }
+  const notes = document.getElementById('new-notes').value.trim();
+  const id = 'n' + Date.now();
+  nodes.push({ id, label, type: chosenType, notes });
+  document.querySelectorAll('#connect-list input:checked').forEach(chk => {
+    edges.push({ source: id, target: chk.value });
+  });
+  overlay.classList.remove('open');
+  render();
+  selectNode(id);
+});
+
+window.addEventListener('resize', render);
+render();
+</script>
+</body>
+</html>
